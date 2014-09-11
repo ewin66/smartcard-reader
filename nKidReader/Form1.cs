@@ -63,6 +63,8 @@ namespace nKidReader
 
         public void DetectCardIDMethod(string cardID )
         {
+            if (string.IsNullOrEmpty(cardID))
+                return;
             notifyReader.BalloonTipText = cardID;
             notifyReader.ShowBalloonTip(100);
             Clipboard.SetText(cardID);

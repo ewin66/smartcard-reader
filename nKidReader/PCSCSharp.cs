@@ -75,11 +75,20 @@ namespace nKidReader
 
         private static string GetUID(string readerName)
         {
-            IsoReader isoReader = new IsoReader(context, readerName, SCardShareMode.Shared, SCardProtocol.Any, false);
-            var card = new MifareCard(isoReader);
-            byte[] UIDBytes = card.GetUID();
-            string uniqueID = string.Join("-", UIDBytes);
-            return uniqueID;
+            try
+            {
+                IsoReader isoReader = new IsoReader(context, readerName, SCardShareMode.Shared, SCardProtocol.Any, false);
+                var card = new MifareCard(isoReader);
+                byte[] UIDBytes = card.GetUID();
+                string uniqueID = string.Join("-", UIDBytes);
+                return uniqueID;
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine("ex: " + ex.ToString());
+                return "";
+            }
+            
         }
 
 
