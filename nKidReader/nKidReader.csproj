@@ -35,6 +35,9 @@
     <ApplicationIcon>favicon %282%29.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="DirectShowLib-2005">
+      <HintPath>.\DirectShowLib-2005.dll</HintPath>
+    </Reference>
     <Reference Include="pcsc-sharp">
       <HintPath>.\pcsc-sharp.dll</HintPath>
     </Reference>
@@ -50,6 +53,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Capture.cs" />
     <Compile Include="Form1.cs">
       <SubType>Form</SubType>
     </Compile>

@@ -10,6 +10,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using PCSC;
+using System.Runtime.InteropServices;
+using System.Drawing.Imaging;
+using System.IO;
 
 namespace nKidReader
 {
@@ -22,6 +25,9 @@ namespace nKidReader
         public delegate void ReaderError(PCSCException error);
         public ReaderError delegateReaderError;
 
+        IntPtr m_ip = IntPtr.Zero;
+        private Capture cam;
+
         public MainForm()
         {
             InitializeComponent();
@@ -31,6 +37,7 @@ namespace nKidReader
 
             //Load reader thread
             readerThread = loadReader();
+            initCamera();
         }
 
         private Thread loadReader()
@@ -61,6 +68,46 @@ namespace nKidReader
            
         }
 
+        private void initCamera()
+        {
+            const int VIDEODEVICE = 0; // zero based index of video capture device to use
+            const int VIDEOWIDTH = 640; // Depends on video device caps
+            const int VIDEOHEIGHT = 480; // Depends on video device caps
+            const int VIDEOBITSPERPIXEL = 24; // BitsPerPixel values determined by device
+            cam = new Capture(VIDEODEVICE, VIDEOWIDTH, VIDEOHEIGHT, VIDEOBITSPERPIXEL, pbCameraPreview);
+        }
+
+        private void captureImage(string cardID)
+        {
+            Cursor.Current = Cursors.WaitCursor;
+
+            // Release any previous buffer
+            if (m_ip != IntPtr.Zero)
+            {
+                Marshal.FreeCoTaskMem(m_ip);
+                m_ip = IntPtr.Zero;
+            }
+
+            // capture image
+            m_ip = cam.Click();
+            Bitmap b = new Bitmap(cam.Width, cam.Height, cam.Stride, PixelFormat.Format24bppRgb, m_ip);
+
+            // If the image is upsidedown
+            b.RotateFlip(RotateFlipType.RotateNoneFlipY);
+            //pictureBox1.Image = b;
+            Thread.Sleep(300);
+            saveToFile(b, cardID);
+            Cursor.Current = Cursors.Default;
+        }
+
+        private void saveToFile(Bitmap b, string cardID)
+        {
+            var s = Path.Combine(@"D:\Projects\", cardID + @".jpg");
+            s = Path.GetFullPath(s);
+            b.Save(s, ImageFormat.Jpeg);
+            b.Dispose(); 
+        }
+
         public void DetectCardIDMethod(string cardID )
         {
             if (string.IsNullOrEmpty(cardID))
@@ -79,8 +126,9 @@ namespace nKidReader
             //Then Ctrl + V
             SendKeys.Send("^V");
 
-
-            
+            //Capture image from webcam
+            captureImage(cardID);
+                        
         }
 
         /// <summary>
@@ -120,6 +168,11 @@ namespace nKidReader
         private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
         {
             readerThread.Abort();
+            if (m_ip != IntPtr.Zero)
+            {
+                Marshal.FreeCoTaskMem(m_ip);
+                m_ip = IntPtr.Zero;
+            }
         }
     }
 }

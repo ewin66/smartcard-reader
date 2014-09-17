@@ -34,7 +34,9 @@
             this.contextMenuStripMain = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.toolStripTextBox1 = new System.Windows.Forms.ToolStripMenuItem();
             this.exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.pbCameraPreview = new System.Windows.Forms.PictureBox();
             this.contextMenuStripMain.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.pbCameraPreview)).BeginInit();
             this.SuspendLayout();
             // 
             // notifyReader
@@ -68,17 +70,27 @@
             this.exitToolStripMenuItem.Text = "Exit";
             this.exitToolStripMenuItem.Click += new System.EventHandler(this.exitToolStripMenuItem_Click);
             // 
+            // pbCameraPreview
+            // 
+            this.pbCameraPreview.Location = new System.Drawing.Point(31, 12);
+            this.pbCameraPreview.Name = "pbCameraPreview";
+            this.pbCameraPreview.Size = new System.Drawing.Size(320, 240);
+            this.pbCameraPreview.TabIndex = 1;
+            this.pbCameraPreview.TabStop = false;
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(284, 262);
+            this.ClientSize = new System.Drawing.Size(560, 452);
+            this.Controls.Add(this.pbCameraPreview);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "MainForm";
             this.Text = "nKid Reader";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MainForm_FormClosing);
             this.Resize += new System.EventHandler(this.MainForm_Resize);
             this.contextMenuStripMain.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.pbCameraPreview)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -89,6 +101,7 @@
         private System.Windows.Forms.ContextMenuStrip contextMenuStripMain;
         private System.Windows.Forms.ToolStripMenuItem exitToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem toolStripTextBox1;
+        private System.Windows.Forms.PictureBox pbCameraPreview;
     }
 }
 
