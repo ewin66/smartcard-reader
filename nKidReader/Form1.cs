@@ -13,6 +13,9 @@ using PCSC;
 using System.Runtime.InteropServices;
 using System.Drawing.Imaging;
 using System.IO;
+using Microsoft.Expression.Encoder;
+using Microsoft.Expression.Encoder.Devices;
+using System.Collections.ObjectModel;
 
 namespace nKidReader
 {
@@ -25,8 +28,10 @@ namespace nKidReader
         public delegate void ReaderError(PCSCException error);
         public ReaderError delegateReaderError;
 
+       
         IntPtr m_ip = IntPtr.Zero;
         private Capture cam;
+        Collection<EncoderDevice> lstDevice;
 
         public MainForm()
         {
@@ -34,10 +39,21 @@ namespace nKidReader
             //Delegate
             delegateDetectCardID = new DetectCardID(DetectCardIDMethod);
             delegateReaderError = new ReaderError(ReaderErrorMethod);
-
             //Load reader thread
             readerThread = loadReader();
-            initCamera();
+
+            
+        }
+
+        private void loadCameraList()
+        {
+            cbCamList.Items.Clear();
+            lstDevice = EncoderDevices.FindDevices(EncoderDeviceType.Video);
+            for (int i = 0; i < lstDevice.Count; i++)
+            {
+                if(lstDevice[i].Name != "Screen Capture Source")
+                    cbCamList.Items.Add(lstDevice[i].Name);
+            }
         }
 
         private Thread loadReader()
@@ -47,6 +63,7 @@ namespace nKidReader
             return t;
         }
 
+        
         public void ReaderErrorMethod(PCSCException error)
         {
             string message = "Error: " + SCardHelper.StringifyError(error.SCardError);
@@ -66,15 +83,16 @@ namespace nKidReader
                 Application.Exit();
             }
            
+
         }
 
-        private void initCamera()
+        private void initCamera(int camIndex)
         {
-            const int VIDEODEVICE = 0; // zero based index of video capture device to use
+            //int VIDEODEVICE = camIndex; // zero based index of video capture device to use
             const int VIDEOWIDTH = 640; // Depends on video device caps
             const int VIDEOHEIGHT = 480; // Depends on video device caps
             const int VIDEOBITSPERPIXEL = 24; // BitsPerPixel values determined by device
-            cam = new Capture(VIDEODEVICE, VIDEOWIDTH, VIDEOHEIGHT, VIDEOBITSPERPIXEL, pbCameraPreview);
+            cam = new Capture(camIndex, VIDEOWIDTH, VIDEOHEIGHT, VIDEOBITSPERPIXEL, pbCameraPreview);
         }
 
         private void captureImage(string cardID)
@@ -89,6 +107,7 @@ namespace nKidReader
             }
 
             // capture image
+
             m_ip = cam.Click();
             Bitmap b = new Bitmap(cam.Width, cam.Height, cam.Stride, PixelFormat.Format24bppRgb, m_ip);
 
@@ -102,7 +121,12 @@ namespace nKidReader
 
         private void saveToFile(Bitmap b, string cardID)
         {
-            var s = Path.Combine(@"D:\Projects\", cardID + @".jpg");
+            string path = @"D:\nKid";
+            if (!Directory.Exists(path))
+            {
+                Directory.CreateDirectory(path);
+            }
+            var s = Path.Combine(path, cardID + @".jpg");
             s = Path.GetFullPath(s);
             b.Save(s, ImageFormat.Jpeg);
             b.Dispose(); 
@@ -127,7 +151,15 @@ namespace nKidReader
             SendKeys.Send("^V");
 
             //Capture image from webcam
-            captureImage(cardID);
+            if (cam != null)
+            {
+                captureImage(cardID);
+            }
+            else
+            {
+                MessageBox.Show("Camera chưa sẵn sàng. Vui lòng thử lại sau", "Error", 
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
                         
         }
 
@@ -172,6 +204,44 @@ namespace nKidReader
             {
                 Marshal.FreeCoTaskMem(m_ip);
                 m_ip = IntPtr.Zero;
+            }
+        }
+
+        private void cbWcOn_CheckedChanged(object sender, EventArgs e)
+        {
+            if (cbWcOn.Checked)
+            {
+                cbCamList.Enabled = true;
+                loadCameraList();
+                cbCamList.SelectedIndex = 0;
+                
+            }
+            else
+            {
+                
+                cbCamList.Enabled = false;
+
+                turnOffCamera();
+            }
+        }
+
+        private void turnOffCamera()
+        {
+            cam.Dispose();
+            cam = null;
+        }
+
+        private void cbCamList_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (cam != null)
+            {
+                turnOffCamera();
+            }
+            
+            
+            if (cbWcOn.Checked)
+            {
+                initCamera(cbCamList.SelectedIndex);                
             }
         }
     }
