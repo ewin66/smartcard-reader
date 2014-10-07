@@ -35,7 +35,7 @@
             this.toolStripTextBox1 = new System.Windows.Forms.ToolStripMenuItem();
             this.exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.pbCameraPreview = new System.Windows.Forms.PictureBox();
-            this.cbWcOn = new System.Windows.Forms.CheckBox();
+            this.chkWcOn = new System.Windows.Forms.CheckBox();
             this.cbCamList = new System.Windows.Forms.ComboBox();
             this.pictureBox1 = new System.Windows.Forms.PictureBox();
             this.label1 = new System.Windows.Forms.Label();
@@ -85,16 +85,16 @@
             this.pbCameraPreview.TabIndex = 1;
             this.pbCameraPreview.TabStop = false;
             // 
-            // cbWcOn
+            // chkWcOn
             // 
-            this.cbWcOn.AutoSize = true;
-            this.cbWcOn.Location = new System.Drawing.Point(388, 16);
-            this.cbWcOn.Name = "cbWcOn";
-            this.cbWcOn.Size = new System.Drawing.Size(109, 17);
-            this.cbWcOn.TabIndex = 2;
-            this.cbWcOn.Text = "Turn on Webcam";
-            this.cbWcOn.UseVisualStyleBackColor = true;
-            this.cbWcOn.CheckedChanged += new System.EventHandler(this.cbWcOn_CheckedChanged);
+            this.chkWcOn.AutoSize = true;
+            this.chkWcOn.Location = new System.Drawing.Point(388, 16);
+            this.chkWcOn.Name = "chkWcOn";
+            this.chkWcOn.Size = new System.Drawing.Size(109, 17);
+            this.chkWcOn.TabIndex = 2;
+            this.chkWcOn.Text = "Turn on Webcam";
+            this.chkWcOn.UseVisualStyleBackColor = true;
+            this.chkWcOn.CheckedChanged += new System.EventHandler(this.cbWcOn_CheckedChanged);
             // 
             // cbCamList
             // 
@@ -160,7 +160,7 @@
             this.Controls.Add(this.label1);
             this.Controls.Add(this.pictureBox1);
             this.Controls.Add(this.cbCamList);
-            this.Controls.Add(this.cbWcOn);
+            this.Controls.Add(this.chkWcOn);
             this.Controls.Add(this.pbCameraPreview);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "MainForm";
@@ -182,7 +182,7 @@
         private System.Windows.Forms.ToolStripMenuItem exitToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem toolStripTextBox1;
         private System.Windows.Forms.PictureBox pbCameraPreview;
-        private System.Windows.Forms.CheckBox cbWcOn;
+        private System.Windows.Forms.CheckBox chkWcOn;
         private System.Windows.Forms.ComboBox cbCamList;
         private System.Windows.Forms.PictureBox pictureBox1;
         private System.Windows.Forms.Label label1;

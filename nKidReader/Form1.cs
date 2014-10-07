@@ -16,6 +16,9 @@ using System.IO;
 using Microsoft.Expression.Encoder;
 using Microsoft.Expression.Encoder.Devices;
 using System.Collections.ObjectModel;
+using Microsoft.Win32;
+using System.Net;
+using System.Configuration;
 
 namespace nKidReader
 {
@@ -32,9 +35,12 @@ namespace nKidReader
         IntPtr m_ip = IntPtr.Zero;
         private Capture cam;
         Collection<EncoderDevice> lstDevice;
-
         public MainForm()
         {
+            using (RegistryKey key = Registry.CurrentUser.OpenSubKey("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run", true))
+            {
+                key.SetValue("nKid Reader", "\"" + Application.ExecutablePath + "\"");
+            }
             InitializeComponent();
             //Delegate
             delegateDetectCardID = new DetectCardID(DetectCardIDMethod);
@@ -42,7 +48,7 @@ namespace nKidReader
             //Load reader thread
             readerThread = loadReader();
 
-            
+           
         }
 
         private void loadCameraList()
@@ -107,7 +113,6 @@ namespace nKidReader
             }
 
             // capture image
-
             m_ip = cam.Click();
             Bitmap b = new Bitmap(cam.Width, cam.Height, cam.Stride, PixelFormat.Format24bppRgb, m_ip);
 
@@ -121,7 +126,7 @@ namespace nKidReader
 
         private void saveToFile(Bitmap b, string cardID)
         {
-            string path = @"D:\nKid";
+            string path = @"D:\nKid\upload";
             if (!Directory.Exists(path))
             {
                 Directory.CreateDirectory(path);
@@ -129,11 +134,52 @@ namespace nKidReader
             var s = Path.Combine(path, cardID + @".jpg");
             s = Path.GetFullPath(s);
             b.Save(s, ImageFormat.Jpeg);
+
+            UploadAvatar(s.ToString());
             b.Dispose(); 
+        }
+
+        string ftpAddress = ConfigurationManager.AppSettings["ftpAddress"];
+        string ftpUsername = ConfigurationManager.AppSettings["ftpUsername"];
+        string ftpPassword = ConfigurationManager.AppSettings["ftpPassword"];
+        string ftpUploadFolder = ConfigurationManager.AppSettings["ftpUploadFolder"];
+        string ftpSyncFolder = ConfigurationManager.AppSettings["ftpSyncFolder"];
+        private void UploadAvatar(string source)
+        {
+            //string filename = Path.GetFileName(source);
+            try
+            {
+                FtpWebRequest request = (FtpWebRequest)WebRequest.Create
+                    (ftpAddress + "/" + ftpUploadFolder + "/" + Path.GetFileName(source));
+                request.Method = WebRequestMethods.Ftp.UploadFile;
+
+                request.Credentials = new NetworkCredential(ftpUsername, ftpPassword);
+                StreamReader sourceStream = new StreamReader(source);
+                byte[] imageBuffer = File.ReadAllBytes(source);
+                sourceStream.Close();
+                request.ContentLength = imageBuffer.Length;
+
+                Stream requestStream = request.GetRequestStream();
+                requestStream.Write(imageBuffer, 0, imageBuffer.Length);
+                requestStream.Close();
+
+                FtpWebResponse response = (FtpWebResponse)request.GetResponse();
+                MessageBox.Show("Upload thành công", "Success",
+                        MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+            catch (Exception e)
+            {
+                MessageBox.Show("Upload lỗi: " + e.Message, "Error",
+                        MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
         public void DetectCardIDMethod(string cardID )
         {
+            if (frmDisplay.Visible)
+            {
+                frmDisplay.Close();
+            }
             if (string.IsNullOrEmpty(cardID))
                 return;
             notifyReader.BalloonTipText = cardID;
@@ -148,19 +194,58 @@ namespace nKidReader
             */
             
             //Then Ctrl + V
-            SendKeys.Send("^V");
+            //SendKeys.Send("^V");
 
             //Capture image from webcam
-            if (cam != null)
+            if (chkWcOn.Checked)
             {
-                captureImage(cardID);
+                if (cam != null)
+                {
+                    captureImage(cardID);
+                }
+                else
+                {
+                    MessageBox.Show("Camera chưa sẵn sàng. Vui lòng thử lại sau", "Error",
+                        MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
             }
             else
             {
-                MessageBox.Show("Camera chưa sẵn sàng. Vui lòng thử lại sau", "Error", 
-                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                Bitmap bmp = GetAvatar(cardID + ".jpg");
+
+                frmDisplay = new DisplayImage(bmp);
+                frmDisplay.Show();
+            }        
+        }
+
+        DisplayImage frmDisplay = new DisplayImage();
+        private Bitmap GetAvatar(string fileName)
+        {
+            try
+            {
+                FtpWebRequest request = (FtpWebRequest)FtpWebRequest.Create
+                    (ftpAddress + "/" + ftpSyncFolder + "/" + fileName);
+                request.Method = WebRequestMethods.Ftp.DownloadFile;
+
+                request.Credentials = new NetworkCredential(ftpUsername, ftpPassword);
+
+                FtpWebResponse response = (FtpWebResponse)request.GetResponse();
+                Stream responseStream = response.GetResponseStream();
+                
+                
+                Bitmap bmp = new Bitmap(responseStream);
+                bmp.Save(responseStream, ImageFormat.Jpeg);
+                
+                
+                responseStream.Close();
+                response.Close();
+                return bmp;
+                
             }
-                        
+            catch (Exception)
+            {
+                return GetAvatar("default.jpg"); 
+            }
         }
 
         /// <summary>
@@ -209,7 +294,7 @@ namespace nKidReader
 
         private void cbWcOn_CheckedChanged(object sender, EventArgs e)
         {
-            if (cbWcOn.Checked)
+            if (chkWcOn.Checked)
             {
                 cbCamList.Enabled = true;
                 loadCameraList();
@@ -239,7 +324,7 @@ namespace nKidReader
             }
             
             
-            if (cbWcOn.Checked)
+            if (chkWcOn.Checked)
             {
                 initCamera(cbCamList.SelectedIndex);                
             }
