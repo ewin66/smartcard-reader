@@ -7,14 +7,11 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Windows.Forms;
-using PCSC;
 using System.Runtime.InteropServices;
 using System.Drawing.Imaging;
 using System.IO;
-using Microsoft.Expression.Encoder;
-using Microsoft.Expression.Encoder.Devices;
+using DirectShowLib;
 using System.Collections.ObjectModel;
 using Microsoft.Win32;
 using System.Net;
@@ -24,17 +21,16 @@ namespace nKidReader
 {
     public partial class MainForm : Form
     {
-        private Thread readerThread;
-        public delegate void DetectCardID(String cardID);
-        public DetectCardID delegateDetectCardID;
-
-        public delegate void ReaderError(PCSCException error);
-        public ReaderError delegateReaderError;
-
-       
         IntPtr m_ip = IntPtr.Zero;
         private Capture cam;
-        Collection<EncoderDevice> lstDevice;
+        private List<DsDevice> availableVideoInputDevices;
+        private DisplayImage frmDisplay = new DisplayImage();
+        private string ftpAddress = ConfigurationManager.AppSettings["ftpAddress"];
+        private string ftpUsername = ConfigurationManager.AppSettings["ftpUsername"];
+        private string ftpPassword = ConfigurationManager.AppSettings["ftpPassword"];
+        private string ftpUploadFolder = ConfigurationManager.AppSettings["ftpUploadFolder"];
+        private string ftpSyncFolder = ConfigurationManager.AppSettings["ftpSyncFolder"];
+
         public MainForm()
         {
             using (RegistryKey key = Registry.CurrentUser.OpenSubKey("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run", true))
@@ -42,56 +38,62 @@ namespace nKidReader
                 key.SetValue("nKid Reader", "\"" + Application.ExecutablePath + "\"");
             }
             InitializeComponent();
-            //Delegate
-            delegateDetectCardID = new DetectCardID(DetectCardIDMethod);
-            delegateReaderError = new ReaderError(ReaderErrorMethod);
-            //Load reader thread
-            readerThread = loadReader();
 
-           
+            //Load camera
+            //availableVideoInputDevices = new List<DsDevice>();
+            //getAvailableVideoInputDevices();
+
+            //Load reader
+            //Magnetic stripe reader: VID_6352 PID_213A
+            //Semnox NFC reader: VID_08FF PID_0009
+            //Default optText = 00000
+
+            //This is demo, load mrs:
+            scan("VID_6352", "PID_213A");
+            // Or semnox :)
+            scan("VID_08FF", "PID_0009");
+
+                 
+        }
+
+        private void scan(string vid, string pid, string opt = "0000")
+        {
+            CardListener simpleUSBListener = new CardListener32();
+            EventHandler currEventHandler = new EventHandler(CardScanCompleteEventHandle);
+            bool flag = simpleUSBListener.InitializeUSBCardReader(this, currEventHandler, vid, pid, opt);
+            if (flag == false)
+                MessageBox.Show("Failure to find the magnetic stripe reader device", "Device Message");
+        }
+
+        private void CardScanCompleteEventHandle(object sender, EventArgs e)
+        {
+            string cardNumber;
+            if (e is CardReaderScannedEventArgs)
+            {
+                CardReaderScannedEventArgs checkScannedEvent = e as CardReaderScannedEventArgs;
+                cardNumber = checkScannedEvent.Message;
+                detectCardIDMethod(cardNumber);
+            }
+        }
+
+        private void getAvailableVideoInputDevices()
+        {
+            DsDevice[] videoInputDevices =
+                DsDevice.GetDevicesOfCat(FilterCategory.VideoInputDevice);
+            availableVideoInputDevices.AddRange(videoInputDevices);
         }
 
         private void loadCameraList()
         {
             cbCamList.Items.Clear();
-            lstDevice = EncoderDevices.FindDevices(EncoderDeviceType.Video);
-            for (int i = 0; i < lstDevice.Count; i++)
+            for (int i = 0; i < availableVideoInputDevices.Count; i++)
             {
-                if(lstDevice[i].Name != "Screen Capture Source")
-                    cbCamList.Items.Add(lstDevice[i].Name);
+                if (availableVideoInputDevices[i].Name != "Screen Capture Source")
+                    cbCamList.Items.Add(availableVideoInputDevices[i].Name);
             }
-        }
-
-        private Thread loadReader()
-        {
-            var t = new Thread(() => PCSCSharp.Ready(this));
-            t.Start();
-            return t;
         }
 
         
-        public void ReaderErrorMethod(PCSCException error)
-        {
-            string message = "Error: " + SCardHelper.StringifyError(error.SCardError);
-            message += "\nReader có vấn đề. Xin kiểm tra lại";
-            //notifyReader.BalloonTipText = message;
-            //notifyReader.ShowBalloonTip(1000);
-
-            DialogResult result = DialogResult.Retry;
-            result = MessageBox.Show(message, "Error", MessageBoxButtons.RetryCancel);
-            if (result == DialogResult.Retry)
-            {
-                readerThread = loadReader();
-            }
-            else if (result == DialogResult.Cancel)
-            {
-                readerThread.Abort();
-                Application.Exit();
-            }
-           
-
-        }
-
         private void initCamera(int camIndex)
         {
             //int VIDEODEVICE = camIndex; // zero based index of video capture device to use
@@ -139,11 +141,7 @@ namespace nKidReader
             b.Dispose(); 
         }
 
-        string ftpAddress = ConfigurationManager.AppSettings["ftpAddress"];
-        string ftpUsername = ConfigurationManager.AppSettings["ftpUsername"];
-        string ftpPassword = ConfigurationManager.AppSettings["ftpPassword"];
-        string ftpUploadFolder = ConfigurationManager.AppSettings["ftpUploadFolder"];
-        string ftpSyncFolder = ConfigurationManager.AppSettings["ftpSyncFolder"];
+        
         private void UploadAvatar(string source)
         {
             //string filename = Path.GetFileName(source);
@@ -174,7 +172,7 @@ namespace nKidReader
             }
         }
 
-        public void DetectCardIDMethod(string cardID )
+        public void detectCardIDMethod(string cardID )
         {
             if (frmDisplay.Visible)
             {
@@ -218,7 +216,7 @@ namespace nKidReader
             }        
         }
 
-        DisplayImage frmDisplay = new DisplayImage();
+        
         private Bitmap GetAvatar(string fileName)
         {
             try
@@ -284,7 +282,6 @@ namespace nKidReader
 
         private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
         {
-            readerThread.Abort();
             if (m_ip != IntPtr.Zero)
             {
                 Marshal.FreeCoTaskMem(m_ip);
