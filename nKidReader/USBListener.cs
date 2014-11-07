@@ -9,6 +9,7 @@ using Microsoft.Win32;
 
 namespace nKidReader
 {
+
     public class CardListener : NativeWindow
     {
         #region const definitions

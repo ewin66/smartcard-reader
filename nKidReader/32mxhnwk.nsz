@@ -32,8 +32,7 @@ namespace nKidReader
         private string ftpPassword = ConfigurationManager.AppSettings["ftpPassword"];
         private string ftpUploadFolder = ConfigurationManager.AppSettings["ftpUploadFolder"];
         private string ftpSyncFolder = ConfigurationManager.AppSettings["ftpSyncFolder"];
-        RestClient client;
-        string accessToken = "";
+
         public MainForm()
         {
             using (RegistryKey key = Registry.CurrentUser.OpenSubKey("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run", true))
@@ -55,8 +54,8 @@ namespace nKidReader
             scan("VID_6352", "PID_213A");
             // Or semnox :)
             scan("VID_08FF", "PID_0009");
-            client = new RestClient("http://sandbox.tinizen.com");
-            getAccessToken();
+
+                 
         }
 
         string nfcID = "";
@@ -80,46 +79,32 @@ namespace nKidReader
             {
                 CardReaderScannedEventArgs checkScannedEvent = e as CardReaderScannedEventArgs;
                 cardNumber = checkScannedEvent.Message;
-                
                 if (listener.dInfo.deviceName.Contains("VID_08FF&PID_0009"))
                 {
                     nfcID = cardNumber;
-                    MessageBox.Show(nfcID);
+                    
                 }
                 else if (listener.dInfo.deviceName.Contains("VID_6352&PID_213A"))
                 {
                     magneticCardID = cardNumber;
-
-                    string result = (makeRequest() == null) ? "No NFC Code" : "NFC Code: " + makeRequest();
-                    if (result == "No NFC Code")
-                    {
-                        NFCCardIdUpload frm = new NFCCardIdUpload();
-                        frm.passControl = new NFCCardIdUpload.PassControl(uploadNFCCode);
-                        frm.Show();
-                    }
+                    sendRequest();
                 }
                 detectCardIDMethod(cardNumber);
             }
         }
 
-        private void uploadNFCCode(string action)
-        {
-            if (action == "OK")
-            {
-                MessageBox.Show(nfcID);
-            }
-            
-        }
-        private void getAccessToken()
+        string accessToken = "";/*
+        private void sendRequest()
         {
             try
             {
+                var client = new RestClient();
                 var request =
-                    new RestRequest("api/oauth/token",
+                    new RestRequest("http://sandbox.tinizen.com/api/oauth/token",
                         Method.POST);
                 request.RequestFormat = DataFormat.Json;
                 request.AddHeader("Accept", "application/json");
-                request.AddJsonBody(new
+                request.AddBody(new
                 {
                     grant_type = ConfigurationManager.AppSettings["grant_type"],
                     client_id = ConfigurationManager.AppSettings["client_id"],
@@ -127,17 +112,19 @@ namespace nKidReader
                     name = ConfigurationManager.AppSettings["name"],
                     scope = ConfigurationManager.AppSettings["scope"]
                 });
-                request.AddHeader("Content-type", "application/json; charset=utf-8");
+
                 RestResponse response = (RestResponse)client.Execute(request);
 
+                string result = "";
                 if (response != null &&
                     ((response.StatusCode == HttpStatusCode.OK) &&
                     (response.ResponseStatus == ResponseStatus.Completed)))
                 {
                     JObject obj = JObject.Parse(response.Content);
                     accessToken = (string)obj["access_token"];
+                    result = (makeRequest() == "null") ? "No NFC Code" : nfcID;
                     
-                }
+                }MessageBox.Show(result);
             }
             catch (Exception)
             {
@@ -145,31 +132,27 @@ namespace nKidReader
                 throw;
             }
         }
-        
+        */
         private string makeRequest()
         {
+            var client = new RestClient();
             var request =
-                new RestRequest("api/cards/" + 200000000845,
+                new RestRequest("http://sandbox.tinizen.com/api/cards/" + magneticCardID,
                     Method.GET);
             request.RequestFormat = DataFormat.Json;
             request.AddHeader("Content-Type", "application/json");
-            request.AddHeader("Authorization", "Bearer " + accessToken);
+            request.AddHeader("Authorization", "Bearer " + "");
 
             RestResponse response = (RestResponse)client.Execute(request);
-            if (response != null)/* &&
+            if (response != null &&
                     ((response.StatusCode == HttpStatusCode.OK) &&
-                    (response.ResponseStatus == ResponseStatus.Completed)))*/
+                    (response.ResponseStatus == ResponseStatus.Completed)))
             {
-                if ((response.StatusCode == HttpStatusCode.NotFound) &&
-                    (response.ResponseStatus == ResponseStatus.Completed))
-                {
-                    return "ID not found";                               
-                }
                 JObject obj = JObject.Parse(response.Content);
 
                 return (string)obj["nfc_code"];
             }
-            return "";
+            return "ID not found";
         }
 
         private void getAvailableVideoInputDevices()
@@ -421,11 +404,6 @@ namespace nKidReader
             {
                 initCamera(cbCamList.SelectedIndex);                
             }
-        }
-
-        private void MainForm_Load(object sender, EventArgs e)
-        {
-
         }
     }
 }
