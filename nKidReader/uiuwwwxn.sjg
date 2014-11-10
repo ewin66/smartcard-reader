@@ -92,38 +92,19 @@ namespace nKidReader
                 {
                     magneticCardID = cardNumber;
 
-                    string result = makeRequest();
-                    if (frmNFCUpConfirm.Visible)
+                    string result = (makeRequest() == null) ? "No NFC Code" : "NFC Code: " + makeRequest();
+                    if (result == "No NFC Code")
                     {
-                        frmNFCUpConfirm.Close();
-                    }
+                        if (frmNFCUpConfirm.Visible)
+                        {
+                            frmNFCUpConfirm.Close();
+                        }
 
-                    /*if (result == "ID not found")
-                    {
-                        frmNFCUpConfirm = new NFCCardIdUpload(nfcID, magneticCardID, result);
-                        frmNFCUpConfirm.BackColor = Color.FromArgb(255, 211, 183);
+                        
+                        frmNFCUpConfirm = new NFCCardIdUpload(nfcID, magneticCardID);
                         frmNFCUpConfirm.passControl = new NFCCardIdUpload.PassControl(uploadNFCCode);
                         frmNFCUpConfirm.Show();
                     }
-                    else
-                    {*/
-
-                        if (result == "NFC not found" || result == "ID not found")
-                        {
-                            frmNFCUpConfirm = new NFCCardIdUpload(nfcID, magneticCardID, result);
-                            frmNFCUpConfirm.BackColor = Color.FromArgb(255, 211, 183);
-                            frmNFCUpConfirm.passControl = new NFCCardIdUpload.PassControl(uploadNFCCode);
-                            frmNFCUpConfirm.Show();
-                            
-                        }
-                        else
-                        {
-                            frmNFCUpConfirm = new NFCCardIdUpload(result, magneticCardID, result);
-                            frmNFCUpConfirm.BackColor = Color.FromArgb(172, 255, 172);
-                            frmNFCUpConfirm.passControl = new NFCCardIdUpload.PassControl(uploadNFCCode);
-                            frmNFCUpConfirm.Show();
-                        }
-                    //}
                 }
                 detectCardIDMethod(cardNumber);
             }
@@ -133,35 +114,7 @@ namespace nKidReader
         {
             if (action == "OK")
             {
-                //MessageBox.Show(nfcID);
-                try
-                {
-                    var request = new RestRequest("api/cards/" + magneticCardID,
-                                Method.PUT);
-                    request.RequestFormat = DataFormat.Json;
-                    request.AddHeader("Content-Type", "application/json");
-                    request.AddHeader("Authorization", "Bearer " + accessToken);
-                    request.AddJsonBody(new
-                    {
-                        nfc_code = nfcID
-                    });
-                    RestResponse response = (RestResponse)client.Execute(request);
-
-                    if (response != null &&
-                        ((response.StatusCode == HttpStatusCode.OK) &&
-                        (response.ResponseStatus == ResponseStatus.Completed)))
-                    {
-                        MessageBox.Show("Updated successfully!");
-
-                    }
-                }
-                catch (Exception)
-                    
-
-                {
-                    
-                    throw;
-                }
+                MessageBox.Show(nfcID);
             }
             
         }
@@ -203,9 +156,8 @@ namespace nKidReader
         
         private string makeRequest()
         {
-            string result = "";
             var request =
-                new RestRequest("api/cards/" + magneticCardID,
+                new RestRequest("api/cards/" + 200000000845,
                     Method.GET);
             request.RequestFormat = DataFormat.Json;
             request.AddHeader("Content-Type", "application/json");
@@ -216,25 +168,16 @@ namespace nKidReader
                     ((response.StatusCode == HttpStatusCode.OK) &&
                     (response.ResponseStatus == ResponseStatus.Completed)))*/
             {
-
                 if ((response.StatusCode == HttpStatusCode.NotFound) &&
                     (response.ResponseStatus == ResponseStatus.Completed))
                 {
-                    result = "ID not found";
+                    return "ID not found";                               
                 }
-                else
-                {
-                    JObject obj = JObject.Parse(response.Content);
-                    if ((string)obj["nfc_code"] == null)
-                    {
-                        result = "NFC not found";
-                    }
-                    else
-                        result = (string)obj["nfc_code"];
-                }
-                
+                JObject obj = JObject.Parse(response.Content);
+
+                return (string)obj["nfc_code"];
             }
-            return result;
+            return "";
         }
 
         private void getAvailableVideoInputDevices()
@@ -342,7 +285,7 @@ namespace nKidReader
             if (string.IsNullOrEmpty(cardID))
                 return;
             notifyReader.BalloonTipText = cardID;
-            notifyReader.ShowBalloonTip(100);
+           // notifyReader.ShowBalloonTip(100);
             Clipboard.SetText(cardID);
             
             /*

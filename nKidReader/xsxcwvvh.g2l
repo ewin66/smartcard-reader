@@ -108,8 +108,9 @@ namespace nKidReader
                     else
                     {*/
 
-                        if (result == "NFC not found" || result == "ID not found")
+                        if (result == "" || result == "ID not found")
                         {
+
                             frmNFCUpConfirm = new NFCCardIdUpload(nfcID, magneticCardID, result);
                             frmNFCUpConfirm.BackColor = Color.FromArgb(255, 211, 183);
                             frmNFCUpConfirm.passControl = new NFCCardIdUpload.PassControl(uploadNFCCode);
@@ -118,7 +119,7 @@ namespace nKidReader
                         }
                         else
                         {
-                            frmNFCUpConfirm = new NFCCardIdUpload(result, magneticCardID, result);
+                            frmNFCUpConfirm = new NFCCardIdUpload(nfcID, magneticCardID, result);
                             frmNFCUpConfirm.BackColor = Color.FromArgb(172, 255, 172);
                             frmNFCUpConfirm.passControl = new NFCCardIdUpload.PassControl(uploadNFCCode);
                             frmNFCUpConfirm.Show();
@@ -203,7 +204,6 @@ namespace nKidReader
         
         private string makeRequest()
         {
-            string result = "";
             var request =
                 new RestRequest("api/cards/" + magneticCardID,
                     Method.GET);
@@ -216,25 +216,16 @@ namespace nKidReader
                     ((response.StatusCode == HttpStatusCode.OK) &&
                     (response.ResponseStatus == ResponseStatus.Completed)))*/
             {
-
                 if ((response.StatusCode == HttpStatusCode.NotFound) &&
                     (response.ResponseStatus == ResponseStatus.Completed))
                 {
-                    result = "ID not found";
+                    return "ID not found";                               
                 }
-                else
-                {
-                    JObject obj = JObject.Parse(response.Content);
-                    if ((string)obj["nfc_code"] == null)
-                    {
-                        result = "NFC not found";
-                    }
-                    else
-                        result = (string)obj["nfc_code"];
-                }
-                
+                JObject obj = JObject.Parse(response.Content);
+
+                return (string)obj["nfc_code"];
             }
-            return result;
+            return "NFC not found";
         }
 
         private void getAvailableVideoInputDevices()

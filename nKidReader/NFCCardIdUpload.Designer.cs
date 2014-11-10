@@ -31,54 +31,80 @@
             this.label1 = new System.Windows.Forms.Label();
             this.button1 = new System.Windows.Forms.Button();
             this.button2 = new System.Windows.Forms.Button();
+            this.lbNFC = new System.Windows.Forms.Label();
+            this.lbMRS = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
             // label1
             // 
             this.label1.AutoSize = true;
             this.label1.Font = new System.Drawing.Font("Microsoft Sans Serif", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label1.Location = new System.Drawing.Point(36, 9);
+            this.label1.Location = new System.Drawing.Point(22, 74);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(272, 18);
+            this.label1.Size = new System.Drawing.Size(356, 18);
             this.label1.TabIndex = 0;
-            this.label1.Text = "Khong co NFC. Ban co muon cap nhat?";
+            this.label1.Text = "Không có NFC trong dữ liệu. Bạn có muốn cập nhật?";
             // 
             // button1
             // 
             this.button1.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.button1.Location = new System.Drawing.Point(55, 40);
+            this.button1.Location = new System.Drawing.Point(59, 104);
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(87, 41);
             this.button1.TabIndex = 1;
-            this.button1.Text = "Co";
+            this.button1.Text = "Có";
             this.button1.UseVisualStyleBackColor = true;
             this.button1.Click += new System.EventHandler(this.button1_Click);
             // 
             // button2
             // 
             this.button2.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.button2.Location = new System.Drawing.Point(201, 40);
+            this.button2.Location = new System.Drawing.Point(240, 104);
             this.button2.Name = "button2";
             this.button2.Size = new System.Drawing.Size(75, 41);
             this.button2.TabIndex = 1;
-            this.button2.Text = "Khong";
+            this.button2.Text = "Không";
             this.button2.UseVisualStyleBackColor = true;
             this.button2.Click += new System.EventHandler(this.button2_Click);
+            // 
+            // lbNFC
+            // 
+            this.lbNFC.AutoSize = true;
+            this.lbNFC.Font = new System.Drawing.Font("Microsoft Sans Serif", 11.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lbNFC.ForeColor = System.Drawing.Color.Green;
+            this.lbNFC.Location = new System.Drawing.Point(36, 11);
+            this.lbNFC.Name = "lbNFC";
+            this.lbNFC.Size = new System.Drawing.Size(52, 18);
+            this.lbNFC.TabIndex = 0;
+            this.lbNFC.Text = "NFC: ";
+            // 
+            // lbMRS
+            // 
+            this.lbMRS.AutoSize = true;
+            this.lbMRS.Font = new System.Drawing.Font("Microsoft Sans Serif", 11.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lbMRS.ForeColor = System.Drawing.Color.RoyalBlue;
+            this.lbMRS.Location = new System.Drawing.Point(36, 42);
+            this.lbMRS.Name = "lbMRS";
+            this.lbMRS.Size = new System.Drawing.Size(55, 18);
+            this.lbMRS.TabIndex = 0;
+            this.lbMRS.Text = "MRS: ";
             // 
             // NFCCardIdUpload
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(255)))), ((int)(((byte)(192)))));
-            this.ClientSize = new System.Drawing.Size(346, 103);
+            this.ClientSize = new System.Drawing.Size(445, 163);
             this.Controls.Add(this.button2);
             this.Controls.Add(this.button1);
+            this.Controls.Add(this.lbMRS);
+            this.Controls.Add(this.lbNFC);
             this.Controls.Add(this.label1);
-            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
-            this.Location = new System.Drawing.Point(1000, 600);
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedToolWindow;
+            this.Location = new System.Drawing.Point(900, 500);
             this.Name = "NFCCardIdUpload";
             this.StartPosition = System.Windows.Forms.FormStartPosition.Manual;
-            this.Text = "NFCCardIdUpload";
+            this.Text = "NFC Card Upload";
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -89,5 +115,7 @@
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Button button1;
         private System.Windows.Forms.Button button2;
+        private System.Windows.Forms.Label lbNFC;
+        private System.Windows.Forms.Label lbMRS;
     }
 }

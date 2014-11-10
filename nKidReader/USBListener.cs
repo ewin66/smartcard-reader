@@ -398,7 +398,7 @@ namespace nKidReader
                     {
                         if (upperCasedeviceName.Contains(vidStrg) && upperCasedeviceName.Contains(pidStrg) && upperCasedeviceName.Contains(optionalStrg))
                         {
-                            MessageBox.Show(deviceName);
+                            //MessageBox.Show(deviceName);
                             if (devicefound == false)
                             {
                                 devicefound = true;

@@ -110,6 +110,7 @@ namespace nKidReader
 
                         if (result == "NFC not found" || result == "ID not found")
                         {
+
                             frmNFCUpConfirm = new NFCCardIdUpload(nfcID, magneticCardID, result);
                             frmNFCUpConfirm.BackColor = Color.FromArgb(255, 211, 183);
                             frmNFCUpConfirm.passControl = new NFCCardIdUpload.PassControl(uploadNFCCode);
@@ -118,7 +119,7 @@ namespace nKidReader
                         }
                         else
                         {
-                            frmNFCUpConfirm = new NFCCardIdUpload(result, magneticCardID, result);
+                            frmNFCUpConfirm = new NFCCardIdUpload(nfcID, magneticCardID, result);
                             frmNFCUpConfirm.BackColor = Color.FromArgb(172, 255, 172);
                             frmNFCUpConfirm.passControl = new NFCCardIdUpload.PassControl(uploadNFCCode);
                             frmNFCUpConfirm.Show();
