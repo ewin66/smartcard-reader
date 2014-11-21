@@ -1,7 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2012
+# Visual Studio 2013
+VisualStudioVersion = 12.0.21005.1
+MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "nKidReader", "nKidReader\nKidReader.csproj", "{BAC7B1D5-BB97-460E-B29F-7D5648CEC767}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EncryptString", "EncryptString\EncryptString.csproj", "{233BB9BA-8F28-4AD8-B091-370070E71E2C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -13,6 +17,10 @@ Global
 		{BAC7B1D5-BB97-460E-B29F-7D5648CEC767}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BAC7B1D5-BB97-460E-B29F-7D5648CEC767}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BAC7B1D5-BB97-460E-B29F-7D5648CEC767}.Release|Any CPU.Build.0 = Release|Any CPU
+		{233BB9BA-8F28-4AD8-B091-370070E71E2C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{233BB9BA-8F28-4AD8-B091-370070E71E2C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{233BB9BA-8F28-4AD8-B091-370070E71E2C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{233BB9BA-8F28-4AD8-B091-370070E71E2C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -73,8 +73,8 @@ namespace nKidReader
             bool flag = simpleUSBListener.InitializeUSBCardReader(this, currEventHandler, vid, pid, opt);
             if (flag == false)
             {
-               // MessageBox.Show("Failure to find the magnetic stripe reader device", "Device Message");
-                this.Close();
+                string mes = "Failure to find the device : " + vid + " - " + pid;
+                MessageBox.Show(mes, "Device Message");
             }
         }
 
@@ -83,7 +83,7 @@ namespace nKidReader
 
             if (!File.Exists(csvFilePath))
             {
-                MessageBox.Show("Tập tin không tồn tại!");
+                //MessageBox.Show("Tập tin không tồn tại!");
                 return;
             }
             // Read sample data from CSV file
@@ -111,7 +111,7 @@ namespace nKidReader
                     // NFC
                 if (listener.dInfo.deviceName.Contains("VID_08FF&PID_0009"))
                 {
-                    
+                    nfcID = cardNumber.ToLower();
                     if (updateNFCIDToolStripMenuItem.Checked)
                     {
                         
@@ -120,7 +120,7 @@ namespace nKidReader
                     else if (manualToolStripMenuItem.Checked)
                     {
                         bool foundMRS = false;
-                        nfcID = cardNumber.ToLower();
+                        
                         foreach (CsvData data in cardList)
                         {
                             if (data.mrsId == magneticCardID)
@@ -150,7 +150,8 @@ namespace nKidReader
                                 writer.WriteRow(row);
                             }
                         }
-                    }
+                    } 
+                    detectCardIDMethod(cardNumber);
                 }
                     // MRS
                 else if (listener.dInfo.deviceName.Contains("VID_6352&PID_213A"))
@@ -174,11 +175,16 @@ namespace nKidReader
                             frmNFCUpConfirm.BackColor = Color.FromArgb(255, 211, 183);
                             frmNFCUpConfirm.passControl = new NFCCardIdUpload.PassControl(serviceHandle.uploadNFCCode);
                             frmNFCUpConfirm.Show();
-
+                            detectCardIDMethod(cardNumber);
+                        }
+                        else
+                        {
+                            notifyReader.BalloonTipText = result;
+                            notifyReader.ShowBalloonTip(100);
                         }
                     }
                 }
-                detectCardIDMethod(cardNumber);
+                
             }
         }
 
