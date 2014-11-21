@@ -57,9 +57,9 @@ namespace nKidReader
             //Default optText = 00000
 
             //This is demo, load mrs:
-            scan("VID_6352", "PID_213A");
+            scan(ConfigurationManager.AppSettings["mrs_vid"], ConfigurationManager.AppSettings["mrs_pid"]);
             // Or semnox :)
-            scan("VID_08FF", "PID_0009");
+            scan(ConfigurationManager.AppSettings["semnox_vid"], ConfigurationManager.AppSettings["semnox_pid"]);
             
             ReadCSVFile();
         }

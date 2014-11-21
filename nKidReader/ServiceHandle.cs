@@ -16,7 +16,7 @@ namespace nKidReader
         RestClient client;
         public ServiceHandle()
         {
-            this.client = new RestClient("http://sandbox.tinizen.com");
+            this.client = new RestClient(ConfigurationManager.AppSettings["restUrl"]);
             this.accessToken = getAccessToken();
         }
 
