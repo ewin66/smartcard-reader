@@ -18,6 +18,7 @@ using System.Net;
 using System.Configuration;
 using RestSharp;
 using Newtonsoft.Json.Linq;
+using ReadWriteCsv;
 
 namespace nKidReader
 {
@@ -27,14 +28,17 @@ namespace nKidReader
         private Capture cam;
         private List<DsDevice> availableVideoInputDevices;
         private DisplayImage frmDisplay = new DisplayImage();
-        private NFCCardIdUpload frmNFCUpConfirm = new NFCCardIdUpload();
+        private NFCCardIdUpload frmNFCUpConfirm;
         private string ftpAddress = ConfigurationManager.AppSettings["ftpAddress"];
         private string ftpUsername = ConfigurationManager.AppSettings["ftpUsername"];
         private string ftpPassword = ConfigurationManager.AppSettings["ftpPassword"];
         private string ftpUploadFolder = ConfigurationManager.AppSettings["ftpUploadFolder"];
         private string ftpSyncFolder = ConfigurationManager.AppSettings["ftpSyncFolder"];
-        RestClient client;
-        string accessToken = "";
+        private string csvFilePath = ConfigurationManager.AppSettings["csvFilePath"];
+        private List<CsvData> cardList = new List<CsvData>();
+        
+       // string accessToken = "";
+        ServiceHandle serviceHandle = new ServiceHandle();
         public MainForm()
         {
             using (RegistryKey key = Registry.CurrentUser.OpenSubKey("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run", true))
@@ -42,10 +46,10 @@ namespace nKidReader
                 key.SetValue("nKid Reader", "\"" + Application.ExecutablePath + "\"");
             }
             InitializeComponent();
-            
+            frmNFCUpConfirm = new NFCCardIdUpload();
             //Load camera
-            //availableVideoInputDevices = new List<DsDevice>();
-            //getAvailableVideoInputDevices();
+            availableVideoInputDevices = new List<DsDevice>();
+            getAvailableVideoInputDevices();
 
             //Load reader
             //Magnetic stripe reader: VID_6352 PID_213A
@@ -56,9 +60,8 @@ namespace nKidReader
             scan("VID_6352", "PID_213A");
             // Or semnox :)
             scan("VID_08FF", "PID_0009");
-            client = new RestClient("http://sandbox.tinizen.com");
-            getAccessToken();
-
+            
+            ReadCSVFile();
         }
 
         string nfcID = "";
@@ -69,174 +72,117 @@ namespace nKidReader
             EventHandler currEventHandler = new EventHandler(CardScanCompleteEventHandle);
             bool flag = simpleUSBListener.InitializeUSBCardReader(this, currEventHandler, vid, pid, opt);
             if (flag == false)
-                MessageBox.Show("Failure to find the magnetic stripe reader device", "Device Message");
-            
+            {
+               // MessageBox.Show("Failure to find the magnetic stripe reader device", "Device Message");
+                this.Close();
+            }
         }
 
+        private void ReadCSVFile()
+        {
+
+            if (!File.Exists(csvFilePath))
+            {
+                MessageBox.Show("Tập tin không tồn tại!");
+                return;
+            }
+            // Read sample data from CSV file
+            using (CsvFileReader reader = new CsvFileReader(csvFilePath))
+            {
+                CsvRow row = new CsvRow();
+                
+                while (reader.ReadRow(row))
+                {
+                    CsvData data = new CsvData(row[0], row[1]);
+                    cardList.Add(data);
+                }
+            }
+        }
 
         private void CardScanCompleteEventHandle(object sender, EventArgs e)
         {
-
+            
             string cardNumber;
             CardListener listener = (CardListener)sender;
             if (e is CardReaderScannedEventArgs)
             {
                 CardReaderScannedEventArgs checkScannedEvent = e as CardReaderScannedEventArgs;
                 cardNumber = checkScannedEvent.Message;
-                
+                    // NFC
                 if (listener.dInfo.deviceName.Contains("VID_08FF&PID_0009"))
                 {
-                    nfcID = cardNumber;
+                    
+                    if (updateNFCIDToolStripMenuItem.Checked)
+                    {
+                        
+                        frmNFCUpConfirm.getNFCCode(nfcID);
+                    }
+                    else if (manualToolStripMenuItem.Checked)
+                    {
+                        bool foundMRS = false;
+                        nfcID = cardNumber.ToLower();
+                        foreach (CsvData data in cardList)
+                        {
+                            if (data.mrsId == magneticCardID)
+                            {
+                                data.nfcId = nfcID;
+                                foundMRS = true;
+                                break;
+                            }
+
+                        }
+
+                        if (!foundMRS)
+                        {
+                            cardList.Add(new CsvData(magneticCardID, nfcID));
+                              
+                        }
+                        // Write to CSV
+                        using (CsvFileWriter writer = new CsvFileWriter(csvFilePath))
+                        {
+                            
+                            for (int i = 0; i < cardList.Count; i++)
+                            {
+                                CsvRow row = new CsvRow();
+                                row.Add(cardList[i].mrsId);
+                                row.Add(cardList[i].nfcId);
+                                
+                                writer.WriteRow(row);
+                            }
+                        }
+                    }
                 }
+                    // MRS
                 else if (listener.dInfo.deviceName.Contains("VID_6352&PID_213A"))
                 {
                     magneticCardID = cardNumber;
-
-                    string result = makeRequest();
-                    if (frmNFCUpConfirm.Visible)
+                    if (updateNFCIDToolStripMenuItem.Checked)
                     {
-                        frmNFCUpConfirm.Close();
-                    }
 
-                    /*if (result == "ID not found")
-                    {
-                        frmNFCUpConfirm = new NFCCardIdUpload(nfcID, magneticCardID, result);
-                        frmNFCUpConfirm.BackColor = Color.FromArgb(255, 211, 183);
-                        frmNFCUpConfirm.passControl = new NFCCardIdUpload.PassControl(uploadNFCCode);
-                        frmNFCUpConfirm.Show();
-                    }
-                    else
-                    {*/
-
-                        if (result == "NFC not found" || result == "ID not found")
+                        if (frmNFCUpConfirm.Visible)
                         {
-                            frmNFCUpConfirm = new NFCCardIdUpload(nfcID, magneticCardID, result);
+                            frmNFCUpConfirm.Close();
+                        }
+                        
+
+                        string result = serviceHandle.makeRequest(magneticCardID);
+
+                        if (result == "NFC not found")
+                        {
+
+                            frmNFCUpConfirm = new NFCCardIdUpload(magneticCardID);
                             frmNFCUpConfirm.BackColor = Color.FromArgb(255, 211, 183);
-                            frmNFCUpConfirm.passControl = new NFCCardIdUpload.PassControl(uploadNFCCode);
+                            frmNFCUpConfirm.passControl = new NFCCardIdUpload.PassControl(serviceHandle.uploadNFCCode);
                             frmNFCUpConfirm.Show();
-                            
+
                         }
-                        else
-                        {
-                            frmNFCUpConfirm = new NFCCardIdUpload(result, magneticCardID, result);
-                            frmNFCUpConfirm.BackColor = Color.FromArgb(172, 255, 172);
-                            frmNFCUpConfirm.passControl = new NFCCardIdUpload.PassControl(uploadNFCCode);
-                            frmNFCUpConfirm.Show();
-                        }
-                    //}
+                    }
                 }
                 detectCardIDMethod(cardNumber);
             }
         }
 
-        private void uploadNFCCode(string action)
-        {
-            if (action == "OK")
-            {
-                //MessageBox.Show(nfcID);
-                try
-                {
-                    var request = new RestRequest("api/cards/" + magneticCardID,
-                                Method.PUT);
-                    request.RequestFormat = DataFormat.Json;
-                    request.AddHeader("Content-Type", "application/json");
-                    request.AddHeader("Authorization", "Bearer " + accessToken);
-                    request.AddJsonBody(new
-                    {
-                        nfc_code = nfcID
-                    });
-                    RestResponse response = (RestResponse)client.Execute(request);
-
-                    if (response != null &&
-                        ((response.StatusCode == HttpStatusCode.OK) &&
-                        (response.ResponseStatus == ResponseStatus.Completed)))
-                    {
-                        MessageBox.Show("Updated successfully!");
-
-                    }
-                }
-                catch (Exception)
-                    
-
-                {
-                    
-                    throw;
-                }
-            }
-            
-        }
-        private void getAccessToken()
-        {
-            try
-            {
-                var request =
-                    new RestRequest("api/oauth/token",
-                        Method.POST);
-                request.RequestFormat = DataFormat.Json;
-                request.AddHeader("Accept", "application/json");
-                request.AddJsonBody(new
-                {
-                    grant_type = ConfigurationManager.AppSettings["grant_type"],
-                    client_id = ConfigurationManager.AppSettings["client_id"],
-                    client_secret = ConfigurationManager.AppSettings["client_secret"],
-                    name = ConfigurationManager.AppSettings["name"],
-                    scope = ConfigurationManager.AppSettings["scope"]
-                });
-                request.AddHeader("Content-type", "application/json; charset=utf-8");
-                RestResponse response = (RestResponse)client.Execute(request);
-
-                if (response != null &&
-                    ((response.StatusCode == HttpStatusCode.OK) &&
-                    (response.ResponseStatus == ResponseStatus.Completed)))
-                {
-                    JObject obj = JObject.Parse(response.Content);
-                    accessToken = (string)obj["access_token"];
-                    
-                }
-            }
-            catch (Exception)
-            {
-
-                throw;
-            }
-        }
         
-        private string makeRequest()
-        {
-            string result = "";
-            var request =
-                new RestRequest("api/cards/" + magneticCardID,
-                    Method.GET);
-            request.RequestFormat = DataFormat.Json;
-            request.AddHeader("Content-Type", "application/json");
-            request.AddHeader("Authorization", "Bearer " + accessToken);
-
-            RestResponse response = (RestResponse)client.Execute(request);
-            if (response != null)/* &&
-                    ((response.StatusCode == HttpStatusCode.OK) &&
-                    (response.ResponseStatus == ResponseStatus.Completed)))*/
-            {
-
-                if ((response.StatusCode == HttpStatusCode.NotFound) &&
-                    (response.ResponseStatus == ResponseStatus.Completed))
-                {
-                    result = "ID not found";
-                }
-                else
-                {
-                    JObject obj = JObject.Parse(response.Content);
-                    if ((string)obj["nfc_code"] == null)
-                    {
-                        result = "NFC not found";
-                    }
-                    else
-                        result = (string)obj["nfc_code"];
-                }
-                
-            }
-            return result;
-        }
-
         private void getAvailableVideoInputDevices()
         {
             DsDevice[] videoInputDevices =
@@ -313,6 +259,7 @@ namespace nKidReader
                 request.Method = WebRequestMethods.Ftp.UploadFile;
 
                 request.Credentials = new NetworkCredential(ftpUsername, ftpPassword);
+                request.UsePassive = true;
                 StreamReader sourceStream = new StreamReader(source);
                 byte[] imageBuffer = File.ReadAllBytes(source);
                 sourceStream.Close();
@@ -358,23 +305,31 @@ namespace nKidReader
             //Capture image from webcam
             if (chkWcOn.Checked)
             {
-                if (cam != null)
+                if (enableUploadingAvatarToolStripMenuItem.Checked)
                 {
-                    captureImage(cardID);
-                }
-                else
-                {
-                    MessageBox.Show("Camera chưa sẵn sàng. Vui lòng thử lại sau", "Error",
-                        MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    if (cam != null)
+                    {
+                        captureImage(cardID);
+                    }
+                    else
+                    {
+                        MessageBox.Show("Camera chưa sẵn sàng. Vui lòng thử lại sau", "Error",
+                            MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
                 }
             }
             else
-            {/*
-                Bitmap bmp = GetAvatar(cardID + ".jpg");
+            {
+                if (showAvatarToolStripMenuItem.Checked)
+                {
+                    Bitmap bmp = GetAvatar("default.jpg");
 
-                frmDisplay = new DisplayImage(bmp);
-                frmDisplay.Show();*/
-            }        
+                    frmDisplay = new DisplayImage(bmp);
+                    frmDisplay.Show();
+                }
+                
+            }
+            
         }
 
         
@@ -385,7 +340,7 @@ namespace nKidReader
                 FtpWebRequest request = (FtpWebRequest)FtpWebRequest.Create
                     (ftpAddress + "/" + ftpSyncFolder + "/" + fileName);
                 request.Method = WebRequestMethods.Ftp.DownloadFile;
-
+                request.UsePassive = true;
                 request.Credentials = new NetworkCredential(ftpUsername, ftpPassword);
 
                 FtpWebResponse response = (FtpWebResponse)request.GetResponse();
@@ -401,7 +356,7 @@ namespace nKidReader
                 return bmp;
                 
             }
-            catch (Exception)
+            catch (NotSupportedException)
             {
                 return GetAvatar("default.jpg"); 
             }
@@ -430,10 +385,10 @@ namespace nKidReader
         }
 
         private void toolStripTextBox1_Click(object sender, EventArgs e)
-        {
+        {/*
             this.Show();
             this.WindowState = FormWindowState.Normal;
-            this.ShowInTaskbar = true;
+            this.ShowInTaskbar = true;*/
         }
 
         private void exitToolStripMenuItem_Click(object sender, EventArgs e)
@@ -491,6 +446,54 @@ namespace nKidReader
         private void MainForm_Load(object sender, EventArgs e)
         {
 
+        }
+
+        private void writeDataToCSVToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            
+        }
+
+        private void showAvatarToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            manualToolStripMenuItem.Checked = false;
+            showAvatarToolStripMenuItem.Checked = true;
+            updateNFCIDToolStripMenuItem.Checked = false;
+            enableUploadingAvatarToolStripMenuItem.Checked = false;
+            chkWcOn.Checked = false;
+        }
+
+        private void updateNFCIDToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            manualToolStripMenuItem.Checked = false;
+            showAvatarToolStripMenuItem.Checked = false;
+            updateNFCIDToolStripMenuItem.Checked = true;
+            enableUploadingAvatarToolStripMenuItem.Checked = false;
+            chkWcOn.Checked = false;
+        }
+
+        private void enableUploadingAvatarToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            manualToolStripMenuItem.Checked = false;
+            showAvatarToolStripMenuItem.Checked = false;
+            updateNFCIDToolStripMenuItem.Checked = false;
+            enableUploadingAvatarToolStripMenuItem.Checked = true;
+            chkWcOn.Checked = true;
+        }
+
+        private void manualToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            manualToolStripMenuItem.Checked = true;
+            showAvatarToolStripMenuItem.Checked = false;
+            updateNFCIDToolStripMenuItem.Checked = false;
+            enableUploadingAvatarToolStripMenuItem.Checked = false;
+            chkWcOn.Checked = false;
+        }
+
+        private void automaticToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            frmAutoWriteCSV frm = new frmAutoWriteCSV("VID_08FF", "PID_0009");
+            frm.Show();
+            
         }
     }
 }

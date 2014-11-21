@@ -1,4 +1,6 @@
-﻿namespace nKidReader
+﻿using System.Drawing;
+using System.Windows.Forms;
+namespace nKidReader
 {
     partial class NFCCardIdUpload
     {
@@ -28,11 +30,13 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             this.label1 = new System.Windows.Forms.Label();
             this.button1 = new System.Windows.Forms.Button();
             this.button2 = new System.Windows.Forms.Button();
             this.lbNFC = new System.Windows.Forms.Label();
             this.lbMRS = new System.Windows.Forms.Label();
+            this.timer1 = new System.Windows.Forms.Timer(this.components);
             this.SuspendLayout();
             // 
             // label1
@@ -50,9 +54,9 @@
             this.button1.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.button1.Location = new System.Drawing.Point(59, 104);
             this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(87, 41);
+            this.button1.Size = new System.Drawing.Size(119, 41);
             this.button1.TabIndex = 1;
-            this.button1.Text = "Có";
+            this.button1.Text = "Thêm vào thẻ";
             this.button1.UseVisualStyleBackColor = true;
             this.button1.Click += new System.EventHandler(this.button1_Click);
             // 
@@ -63,7 +67,7 @@
             this.button2.Name = "button2";
             this.button2.Size = new System.Drawing.Size(75, 41);
             this.button2.TabIndex = 1;
-            this.button2.Text = "Không";
+            this.button2.Text = "Hủy";
             this.button2.UseVisualStyleBackColor = true;
             this.button2.Click += new System.EventHandler(this.button2_Click);
             // 
@@ -89,11 +93,16 @@
             this.lbMRS.TabIndex = 0;
             this.lbMRS.Text = "MRS: ";
             // 
+            // timer1
+            // 
+            this.timer1.Interval = 10000;
+            this.timer1.Tick += new System.EventHandler(this.timer1_Tick);
+            // 
             // NFCCardIdUpload
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(255)))), ((int)(((byte)(192)))));
+            this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(211)))), ((int)(((byte)(183)))));
             this.ClientSize = new System.Drawing.Size(445, 163);
             this.Controls.Add(this.button2);
             this.Controls.Add(this.button1);
@@ -101,10 +110,12 @@
             this.Controls.Add(this.lbNFC);
             this.Controls.Add(this.label1);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedToolWindow;
-            this.Location = new System.Drawing.Point(900, 500);
+            this.Location = new System.Drawing.Point(Screen.PrimaryScreen.WorkingArea.Width - this.Width, 
+                Screen.PrimaryScreen.WorkingArea.Height - this.Height);
             this.Name = "NFCCardIdUpload";
             this.StartPosition = System.Windows.Forms.FormStartPosition.Manual;
             this.Text = "NFC Card Upload";
+            this.TopMost = true;
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -117,5 +128,6 @@
         private System.Windows.Forms.Button button2;
         private System.Windows.Forms.Label lbNFC;
         private System.Windows.Forms.Label lbMRS;
+        private System.Windows.Forms.Timer timer1;
     }
 }

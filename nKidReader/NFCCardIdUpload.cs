@@ -23,54 +23,56 @@ namespace nKidReader
         public NFCCardIdUpload()
         {
             InitializeComponent();
-           // AnimateWindow(this.Handle, 700, AW_SLIDE | AW_VER_NEGATIVE);
-        }
 
-        public NFCCardIdUpload(string nfcID, string mrsID, string status)
+        }
+        private string nfcID;
+        private string mrsID;
+        public void getNFCCode(string nfcID)
+        {
+            lbNFC.Text = "NFC: " + nfcID;
+            this.nfcID = nfcID;
+            button1.Enabled = true;
+            button2.Enabled = true;
+            button1.Focus();
+        }
+        
+        public NFCCardIdUpload(string mrsID)
         {
             InitializeComponent();
+            this.mrsID = mrsID;
             lbNFC.Text = "NFC: ";
             lbMRS.Text = "MRS: " + mrsID;
 
             
-            if (status == "NFC not found")
-            {
-                lbNFC.Text = "NFC: " + nfcID;
-                button1.Visible = true;
-                button2.Visible = true;
-                label1.Text = "Không có mã thẻ MFC trong dữ liệu! Bạn có muốn cập nhật?";
-            }
-
-            else if (status == "ID not found")
-            {
-                
-                button1.Visible = false;
-                button2.Visible = false;
-                label1.Text = "Không tìm thấy thông tin thẻ";
-            }
-            else
-            {
-                lbNFC.Text = "NFC: " + status;
-                button1.Visible = false;
-                button2.Visible = false;
-                label1.Text = "Mã thẻ NFC đã có trong dữ liệu!";
-            }
-            AnimateWindow(this.Handle, 300, AW_SLIDE | AW_VER_NEGATIVE);
-
+            button1.Enabled = false;
+            button2.Enabled = false;
+            label1.Text = "Không có mã thẻ NFC trong dữ liệu!";
+        
+            AnimateWindow(this.Handle, 200, AW_SLIDE | AW_VER_NEGATIVE);
+            
+            timer1.Start();
         }
 
-        public delegate void PassControl(string result);
+        public delegate void PassControl(string result, string magneticCardID, string nfcID);
 
         public PassControl passControl;
         private void button1_Click(object sender, EventArgs e)
         {
-            passControl("OK");
+            passControl("OK", this.mrsID, this.nfcID);
+            timer1.Stop();
             this.Close();
         }
 
         private void button2_Click(object sender, EventArgs e)
         {
-            passControl("Cancel");
+            passControl("Cancel", this.mrsID, this.nfcID);
+            timer1.Stop();
+            this.Close();
+        }
+
+        private void timer1_Tick(object sender, EventArgs e)
+        {
+            timer1.Stop();
             this.Close();
         }
     }

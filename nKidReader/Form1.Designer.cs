@@ -32,7 +32,13 @@
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
             this.notifyReader = new System.Windows.Forms.NotifyIcon(this.components);
             this.contextMenuStripMain = new System.Windows.Forms.ContextMenuStrip(this.components);
-            this.toolStripTextBox1 = new System.Windows.Forms.ToolStripMenuItem();
+            this.updateNFCIDToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.writeDataToCSVToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.manualToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.automaticToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.showAvatarToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.enableUploadingAvatarToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
             this.exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.pbCameraPreview = new System.Windows.Forms.PictureBox();
             this.chkWcOn = new System.Windows.Forms.CheckBox();
@@ -41,6 +47,7 @@
             this.label1 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
+            this.toolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
             this.contextMenuStripMain.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pbCameraPreview)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
@@ -58,22 +65,76 @@
             // contextMenuStripMain
             // 
             this.contextMenuStripMain.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.toolStripTextBox1,
+            this.updateNFCIDToolStripMenuItem,
+            this.writeDataToCSVToolStripMenuItem,
+            this.showAvatarToolStripMenuItem,
+            this.enableUploadingAvatarToolStripMenuItem,
+            this.toolStripSeparator1,
             this.exitToolStripMenuItem});
             this.contextMenuStripMain.Name = "contextMenuStripMain";
-            this.contextMenuStripMain.Size = new System.Drawing.Size(104, 48);
+            this.contextMenuStripMain.Size = new System.Drawing.Size(202, 120);
             // 
-            // toolStripTextBox1
+            // updateNFCIDToolStripMenuItem
             // 
-            this.toolStripTextBox1.Name = "toolStripTextBox1";
-            this.toolStripTextBox1.Size = new System.Drawing.Size(103, 22);
-            this.toolStripTextBox1.Text = "Show";
-            this.toolStripTextBox1.Click += new System.EventHandler(this.toolStripTextBox1_Click);
+            this.updateNFCIDToolStripMenuItem.CheckOnClick = true;
+            this.updateNFCIDToolStripMenuItem.Name = "updateNFCIDToolStripMenuItem";
+            this.updateNFCIDToolStripMenuItem.Size = new System.Drawing.Size(201, 22);
+            this.updateNFCIDToolStripMenuItem.Text = "Update NFC ID";
+            this.updateNFCIDToolStripMenuItem.Click += new System.EventHandler(this.updateNFCIDToolStripMenuItem_Click);
+            // 
+            // writeDataToCSVToolStripMenuItem
+            // 
+            this.writeDataToCSVToolStripMenuItem.CheckOnClick = true;
+            this.writeDataToCSVToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.manualToolStripMenuItem,
+            this.automaticToolStripMenuItem});
+            this.writeDataToCSVToolStripMenuItem.Name = "writeDataToCSVToolStripMenuItem";
+            this.writeDataToCSVToolStripMenuItem.Size = new System.Drawing.Size(201, 22);
+            this.writeDataToCSVToolStripMenuItem.Text = "Write data to CSV";
+            this.writeDataToCSVToolStripMenuItem.Click += new System.EventHandler(this.writeDataToCSVToolStripMenuItem_Click);
+            // 
+            // manualToolStripMenuItem
+            // 
+            this.manualToolStripMenuItem.Checked = true;
+            this.manualToolStripMenuItem.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.manualToolStripMenuItem.Name = "manualToolStripMenuItem";
+            this.manualToolStripMenuItem.Size = new System.Drawing.Size(130, 22);
+            this.manualToolStripMenuItem.Text = "Manual";
+            this.manualToolStripMenuItem.Click += new System.EventHandler(this.manualToolStripMenuItem_Click);
+            // 
+            // automaticToolStripMenuItem
+            // 
+            this.automaticToolStripMenuItem.Name = "automaticToolStripMenuItem";
+            this.automaticToolStripMenuItem.Size = new System.Drawing.Size(130, 22);
+            this.automaticToolStripMenuItem.Text = "Automatic";
+            this.automaticToolStripMenuItem.Click += new System.EventHandler(this.automaticToolStripMenuItem_Click);
+            // 
+            // showAvatarToolStripMenuItem
+            // 
+            this.showAvatarToolStripMenuItem.CheckOnClick = true;
+            this.showAvatarToolStripMenuItem.ImageAlign = System.Drawing.ContentAlignment.MiddleRight;
+            this.showAvatarToolStripMenuItem.Name = "showAvatarToolStripMenuItem";
+            this.showAvatarToolStripMenuItem.Size = new System.Drawing.Size(201, 22);
+            this.showAvatarToolStripMenuItem.Text = "Show avatar";
+            this.showAvatarToolStripMenuItem.Click += new System.EventHandler(this.showAvatarToolStripMenuItem_Click);
+            // 
+            // enableUploadingAvatarToolStripMenuItem
+            // 
+            this.enableUploadingAvatarToolStripMenuItem.CheckOnClick = true;
+            this.enableUploadingAvatarToolStripMenuItem.Name = "enableUploadingAvatarToolStripMenuItem";
+            this.enableUploadingAvatarToolStripMenuItem.Size = new System.Drawing.Size(201, 22);
+            this.enableUploadingAvatarToolStripMenuItem.Text = "Enable uploading avatar";
+            this.enableUploadingAvatarToolStripMenuItem.Click += new System.EventHandler(this.enableUploadingAvatarToolStripMenuItem_Click);
+            // 
+            // toolStripSeparator1
+            // 
+            this.toolStripSeparator1.Name = "toolStripSeparator1";
+            this.toolStripSeparator1.Size = new System.Drawing.Size(198, 6);
             // 
             // exitToolStripMenuItem
             // 
             this.exitToolStripMenuItem.Name = "exitToolStripMenuItem";
-            this.exitToolStripMenuItem.Size = new System.Drawing.Size(103, 22);
+            this.exitToolStripMenuItem.Size = new System.Drawing.Size(201, 22);
             this.exitToolStripMenuItem.Text = "Exit";
             this.exitToolStripMenuItem.Click += new System.EventHandler(this.exitToolStripMenuItem_Click);
             // 
@@ -150,6 +211,12 @@
             this.label3.TabIndex = 7;
             this.label3.Text = "All Rights Reserved";
             // 
+            // toolStripMenuItem1
+            // 
+            this.toolStripMenuItem1.Name = "toolStripMenuItem1";
+            this.toolStripMenuItem1.Size = new System.Drawing.Size(159, 22);
+            this.toolStripMenuItem1.Text = "Enable Webcam";
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -181,7 +248,6 @@
         private System.Windows.Forms.NotifyIcon notifyReader;
         private System.Windows.Forms.ContextMenuStrip contextMenuStripMain;
         private System.Windows.Forms.ToolStripMenuItem exitToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem toolStripTextBox1;
         private System.Windows.Forms.PictureBox pbCameraPreview;
         private System.Windows.Forms.CheckBox chkWcOn;
         private System.Windows.Forms.ComboBox cbCamList;
@@ -189,6 +255,14 @@
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Label label3;
+        private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
+        private System.Windows.Forms.ToolStripMenuItem updateNFCIDToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem writeDataToCSVToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem showAvatarToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem enableUploadingAvatarToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem1;
+        private System.Windows.Forms.ToolStripMenuItem manualToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem automaticToolStripMenuItem;
     }
 }
 
