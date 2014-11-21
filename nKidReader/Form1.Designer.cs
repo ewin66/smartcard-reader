@@ -72,11 +72,13 @@
             this.toolStripSeparator1,
             this.exitToolStripMenuItem});
             this.contextMenuStripMain.Name = "contextMenuStripMain";
-            this.contextMenuStripMain.Size = new System.Drawing.Size(202, 120);
+            this.contextMenuStripMain.Size = new System.Drawing.Size(202, 142);
             // 
             // updateNFCIDToolStripMenuItem
             // 
+            this.updateNFCIDToolStripMenuItem.Checked = true;
             this.updateNFCIDToolStripMenuItem.CheckOnClick = true;
+            this.updateNFCIDToolStripMenuItem.CheckState = System.Windows.Forms.CheckState.Checked;
             this.updateNFCIDToolStripMenuItem.Name = "updateNFCIDToolStripMenuItem";
             this.updateNFCIDToolStripMenuItem.Size = new System.Drawing.Size(201, 22);
             this.updateNFCIDToolStripMenuItem.Text = "Update NFC ID";
@@ -95,17 +97,15 @@
             // 
             // manualToolStripMenuItem
             // 
-            this.manualToolStripMenuItem.Checked = true;
-            this.manualToolStripMenuItem.CheckState = System.Windows.Forms.CheckState.Checked;
             this.manualToolStripMenuItem.Name = "manualToolStripMenuItem";
-            this.manualToolStripMenuItem.Size = new System.Drawing.Size(130, 22);
+            this.manualToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.manualToolStripMenuItem.Text = "Manual";
             this.manualToolStripMenuItem.Click += new System.EventHandler(this.manualToolStripMenuItem_Click);
             // 
             // automaticToolStripMenuItem
             // 
             this.automaticToolStripMenuItem.Name = "automaticToolStripMenuItem";
-            this.automaticToolStripMenuItem.Size = new System.Drawing.Size(130, 22);
+            this.automaticToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.automaticToolStripMenuItem.Text = "Automatic";
             this.automaticToolStripMenuItem.Click += new System.EventHandler(this.automaticToolStripMenuItem_Click);
             // 

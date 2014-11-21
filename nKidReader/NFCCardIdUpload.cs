@@ -27,6 +27,7 @@ namespace nKidReader
         }
         private string nfcID;
         private string mrsID;
+        private NotifyIcon notifyReader;
         public void getNFCCode(string nfcID)
         {
             lbNFC.Text = "NFC: " + nfcID;
@@ -36,10 +37,11 @@ namespace nKidReader
             button1.Focus();
         }
         
-        public NFCCardIdUpload(string mrsID)
+        public NFCCardIdUpload(string mrsID, NotifyIcon nr)
         {
             InitializeComponent();
             this.mrsID = mrsID;
+            this.notifyReader = nr;
             lbNFC.Text = "NFC: ";
             lbMRS.Text = "MRS: " + mrsID;
 
@@ -53,19 +55,23 @@ namespace nKidReader
             timer1.Start();
         }
 
-        public delegate void PassControl(string result, string magneticCardID, string nfcID);
+        public delegate string PassControl(string result, string magneticCardID, string nfcID);
 
         public PassControl passControl;
         private void button1_Click(object sender, EventArgs e)
         {
-            passControl("OK", this.mrsID, this.nfcID);
+            string result = passControl("OK", this.mrsID, this.nfcID);
+            notifyReader.BalloonTipText = result;
+            notifyReader.ShowBalloonTip(100);
             timer1.Stop();
             this.Close();
         }
 
         private void button2_Click(object sender, EventArgs e)
         {
-            passControl("Cancel", this.mrsID, this.nfcID);
+            string result = passControl("Cancel", this.mrsID, this.nfcID);
+            notifyReader.BalloonTipText = result;
+            notifyReader.ShowBalloonTip(100);
             timer1.Stop();
             this.Close();
         }

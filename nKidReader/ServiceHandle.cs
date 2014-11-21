@@ -83,7 +83,7 @@ namespace nKidReader
                 }
                 else
                 {
-                    
+                    MessageBox.Show("Cannot get token");
 
                 }
             }
@@ -95,9 +95,9 @@ namespace nKidReader
             return null;
         }
 
-        public void uploadNFCCode(string action, string magneticCardID, string nfcID)
+        public string uploadNFCCode(string action, string magneticCardID, string nfcID)
         {
-            if (action == "OK")
+            if ("OK".Equals(action))
             {
                 try
                 {
@@ -116,15 +116,22 @@ namespace nKidReader
                         ((response.StatusCode == HttpStatusCode.OK) &&
                         (response.ResponseStatus == ResponseStatus.Completed)))
                     {
-                        MessageBox.Show("Updated successfully!");
+                        return "Updated successfully!";
 
                     }
+                    else
+                    {
+                        return "Update failed. Status is: " + response.StatusCode;
+                    }
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
-
-                    throw;
+                    return ex.ToString();
                 }
+            }
+            else
+            {
+                return "You not press OK";
             }
         }
 
