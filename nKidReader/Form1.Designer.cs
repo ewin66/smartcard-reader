@@ -90,6 +90,7 @@
             this.writeDataToCSVToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.manualToolStripMenuItem,
             this.automaticToolStripMenuItem});
+            this.writeDataToCSVToolStripMenuItem.Enabled = false;
             this.writeDataToCSVToolStripMenuItem.Name = "writeDataToCSVToolStripMenuItem";
             this.writeDataToCSVToolStripMenuItem.Size = new System.Drawing.Size(201, 22);
             this.writeDataToCSVToolStripMenuItem.Text = "Write data to CSV";
@@ -112,6 +113,7 @@
             // showAvatarToolStripMenuItem
             // 
             this.showAvatarToolStripMenuItem.CheckOnClick = true;
+            this.showAvatarToolStripMenuItem.Enabled = false;
             this.showAvatarToolStripMenuItem.ImageAlign = System.Drawing.ContentAlignment.MiddleRight;
             this.showAvatarToolStripMenuItem.Name = "showAvatarToolStripMenuItem";
             this.showAvatarToolStripMenuItem.Size = new System.Drawing.Size(201, 22);
@@ -121,6 +123,7 @@
             // enableUploadingAvatarToolStripMenuItem
             // 
             this.enableUploadingAvatarToolStripMenuItem.CheckOnClick = true;
+            this.enableUploadingAvatarToolStripMenuItem.Enabled = false;
             this.enableUploadingAvatarToolStripMenuItem.Name = "enableUploadingAvatarToolStripMenuItem";
             this.enableUploadingAvatarToolStripMenuItem.Size = new System.Drawing.Size(201, 22);
             this.enableUploadingAvatarToolStripMenuItem.Text = "Enable uploading avatar";

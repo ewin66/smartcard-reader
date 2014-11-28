@@ -74,11 +74,11 @@ namespace EncryptString
         static void Main(string[] args)
         {
             StreamWriter file2 = new StreamWriter(@"d:\file.txt", true);
-            file2.WriteLine(Encrypt("7cbe80709c9eab855e14ac10adc250ea", true));
-            file2.WriteLine(Decrypt(Encrypt("7cbe80709c9eab855e14ac10adc250ea", true), true));
+            file2.WriteLine(Encrypt("54d8cff98089709a1d7daaf211f68bf0", true));
+            file2.WriteLine(Decrypt(Encrypt("54d8cff98089709a1d7daaf211f68bf0", true), true));
             file2.Close();
-            //Console.WriteLine(Encrypt("7cbe80709c9eab855e14ac10adc250ea", true));
-            //Console.WriteLine(Decrypt(Encrypt("7cbe80709c9eab855e14ac10adc250ea", true), true));
+            //Console.WriteLine(Encrypt("54d8cff98089709a1d7daaf211f68bf0", true));
+            //Console.WriteLine(Decrypt(Encrypt("54d8cff98089709a1d7daaf211f68bf0", true), true));
         }
     }
 }

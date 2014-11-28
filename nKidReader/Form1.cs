@@ -19,6 +19,7 @@ using System.Configuration;
 using RestSharp;
 using Newtonsoft.Json.Linq;
 using ReadWriteCsv;
+using NLog;
 
 namespace nKidReader
 {
@@ -38,6 +39,7 @@ namespace nKidReader
         private List<CsvData> cardList = new List<CsvData>();
         
        // string accessToken = "";
+        private static Logger logger = LogManager.GetCurrentClassLogger();
         ServiceHandle serviceHandle = new ServiceHandle();
         public MainForm()
         {
@@ -108,6 +110,7 @@ namespace nKidReader
             {
                 CardReaderScannedEventArgs checkScannedEvent = e as CardReaderScannedEventArgs;
                 cardNumber = checkScannedEvent.Message;
+                logger.Debug("Card number: " + cardNumber);
                     // NFC
                 if (listener.dInfo.deviceName.Contains("VID_08FF&PID_0009"))
                 {

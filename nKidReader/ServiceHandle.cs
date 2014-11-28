@@ -8,11 +8,12 @@ using System.Net;
 using System.Security.Cryptography;
 using System.Text;
 using System.Windows.Forms;
-
+using NLog;
 namespace nKidReader
 {
     class ServiceHandle
     {
+        private static Logger logger = LogManager.GetCurrentClassLogger();
         private static readonly string encryptionKey = "YOURSECRETKEY";
         public string accessToken { get; set; }
         RestClient client;
@@ -78,11 +79,14 @@ namespace nKidReader
                     (response.ResponseStatus == ResponseStatus.Completed)))
                 {
                     JObject obj = JObject.Parse(response.Content);
+                    logger.Info("Domain: " + ConfigurationManager.AppSettings["restUrl"] + ". Get token done");
                     return (string)obj["access_token"];
+                    
 
                 }
                 else
                 {
+                    logger.Info("Get token failed");
                     MessageBox.Show("Cannot get token");
 
                 }
@@ -116,14 +120,16 @@ namespace nKidReader
                         ((response.StatusCode == HttpStatusCode.OK) &&
                         (response.ResponseStatus == ResponseStatus.Completed)))
                     {
+                        logger.Info("Update card by mrs " + magneticCardID + " - nfc " + nfcID + ": Success");
                         return "Updated successfully!";
 
                     }
                     else
                     {
+                        logger.Info("Update card by mrs " + magneticCardID + " - nfc " + nfcID + ": Failed, status: " + response.StatusCode);
                         return "Update failed. Status is: " + response.StatusCode;
                     }
-                }
+                }   
                 catch (Exception ex)
                 {
                     return ex.ToString();
@@ -154,10 +160,12 @@ namespace nKidReader
                 if ((response.StatusCode == HttpStatusCode.NotFound) &&
                     (response.ResponseStatus == ResponseStatus.Completed))
                 {
+                    logger.Info("Get card by mrs " + magneticCardID + ": not found" );
                     result = "ID not found";
                 }
                 else if (response.StatusCode == 0)
 	            {
+                    logger.Info("Get card by mrs " + magneticCardID + ": error, statusCode: " + response.StatusCode);
                     result = "Không thể kết nối tới tiNiZen";
 	            }
                 else
@@ -165,15 +173,20 @@ namespace nKidReader
                     JObject obj = JObject.Parse(response.Content);
                     if ((string)obj["nfc_code"] == null)
                     {
+                        logger.Info("Get card by mrs " + magneticCardID + ": has no NFC");
                         result = "NFC not found";
                     }
                     else
+                    {
+                        logger.Info("Get card by mrs " + magneticCardID + ": already has NFC");
                         result = (string)obj["nfc_code"];
+                    }
                 }
 
             }
             else
             {
+                // ??? what the hell?
                 return response.StatusCode.ToString();
             }
             return result;

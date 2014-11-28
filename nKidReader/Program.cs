@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Windows.Forms;
+using NLog;
 
 namespace nKidReader
 {
@@ -20,6 +21,7 @@ namespace nKidReader
             {
                 if (createdNew)
                 {
+                    Logger logger = LogManager.GetLogger("nKidReader");
                     GC.Collect();            
                     Application.EnableVisualStyles();
                     Application.SetCompatibleTextRenderingDefault(false);
